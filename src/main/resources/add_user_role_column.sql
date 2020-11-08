@@ -1,0 +1,1 @@
+ALTER TABLE webdb.user ADD COLUMN role int;
