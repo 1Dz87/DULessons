@@ -25,14 +25,22 @@ public class UserDaoFromDBImpl implements UserDao {
         }
 
         try(Connection connection = DriverManager.getConnection(DATABASE_URL, USER, PASSWORD);
-            Statement statement = connection.createStatement()) {
+            PreparedStatement statement = connection.prepareStatement("insert into user (login, password, first_name, last_name, role) values (?,?,?,?,?)", Statement.RETURN_GENERATED_KEYS)) {
 
-            statement.execute("insert into user (login, password, first_name, last_name, role) values (" +
-                    "'" + user.getLogin() + "'," +
-                    "'" + user.getPassword() + "'," +
-                    "'" + user.getFirstName() + "'," +
-                    "'" + user.getLastName() + "'," +
-                    "'" + user.getRole().ordinal() + "')");
+            statement.setString(1, user.getLogin());
+            statement.setString(2, user.getPassword());
+            statement.setString(3, user.getFirstName());
+            statement.setString(4, user.getLastName());
+            statement.setInt(5, user.getRole().ordinal());
+            statement.executeUpdate();
+
+            try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    user.setId(generatedKeys.getLong(1));
+                } else {
+                    throw new SQLException("Ошибка получения первичного ключа");
+                }
+            }
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }

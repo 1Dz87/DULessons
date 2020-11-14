@@ -56,12 +56,12 @@
     %>
 </table>
 <p>
-<form action="${pageContext.request.contextPath}/createuser.html">
+<form action="${pageContext.request.contextPath}/createuser" method="get">
     <button type="submit">Create user</button>
 </form>
 </p>
 <p>
-<form action="${pageContext.request.contextPath}/finduser.html">
+<form action="${pageContext.request.contextPath}/finduser" method="get">
     <button type="submit">Find user</button>
 </form>
 </p>

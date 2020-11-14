@@ -3,6 +3,8 @@ package servlet;
 import dao.UserDao;
 import dao.UserDaoFromDBImpl;
 import entity.User;
+import entity.UserPhoto;
+import lib.Utils;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -20,12 +22,15 @@ public class FindUserServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
+        RequestDispatcher requestDispatcher = req.getRequestDispatcher("finduser.jsp");
+        requestDispatcher.forward(req, resp);
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String lastName = req.getParameter("lastName");
-
         final List<User> users = userDao.findByLastName(lastName);
-
         req.setAttribute("users", users);
-
         RequestDispatcher requestDispatcher = req.getRequestDispatcher("users.jsp");
         requestDispatcher.forward(req, resp);
     }

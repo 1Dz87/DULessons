@@ -20,6 +20,6 @@ public class DeleteUserServlet extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         userDao.delete(Long.valueOf(req.getParameter("id")));
 
-        resp.sendRedirect("/alluser");
+        resp.sendRedirect(req.getContextPath() + "/alluser");
     }
 }
