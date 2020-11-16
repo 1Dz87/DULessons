@@ -97,8 +97,9 @@ public class UserDaoFromDBImpl implements UserDao {
 
             final ResultSet rs = statement.executeQuery("select * from user where id = '" + id + "'");
             if (rs.next()){
+                Role role = Role.values()[rs.getInt("role")];
                 user = new User(rs.getLong("id"), rs.getString("login"), rs.getString("password"),
-                        rs.getString("first_name"), rs.getString("last_name"));
+                        rs.getString("first_name"), rs.getString("last_name"), role);
             }
 
         } catch (SQLException throwables) {
@@ -122,8 +123,9 @@ public class UserDaoFromDBImpl implements UserDao {
 
             final ResultSet rs = statement.executeQuery("select * from user where login = '" + login + "'");
             if (rs.next()){
+                Role role = Role.values()[rs.getInt("role")];
                 user = new User(rs.getLong("id"), rs.getString("login"), rs.getString("password"),
-                        rs.getString("first_name"), rs.getString("last_name"));
+                        rs.getString("first_name"), rs.getString("last_name"), role);
             }
 
         } catch (SQLException throwables) {
@@ -148,8 +150,9 @@ public class UserDaoFromDBImpl implements UserDao {
             final ResultSet rs = statement.executeQuery("select * from user where last_name = '" + lastName + "'");
 
             while (rs.next()){
+                Role role = Role.values()[rs.getInt("role")];
                 User user = new User(rs.getLong("id"), rs.getString("login"), rs.getString("password"),
-                        rs.getString("first_name"), rs.getString("last_name"));
+                        rs.getString("first_name"), rs.getString("last_name"), role);
                 list.add(user);
             }
 
@@ -174,8 +177,9 @@ public class UserDaoFromDBImpl implements UserDao {
             final ResultSet rs = statement.executeQuery("select * from user");
 
             while (rs.next()){
+                Role role = Role.values()[rs.getInt("role")];
                 User user = new User(rs.getLong("id"), rs.getString("login"), rs.getString("password"),
-                        rs.getString("first_name"), rs.getString("last_name"));
+                        rs.getString("first_name"), rs.getString("last_name"), role);
                 Long photoId = rs.getLong("photo");
                 UserPhoto userPhoto = getUserPhoto(photoId);
                 user.setImage(userPhoto);

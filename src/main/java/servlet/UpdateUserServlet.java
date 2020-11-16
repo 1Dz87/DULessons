@@ -26,7 +26,6 @@ public class UpdateUserServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
         User user = userDao.findById(Long.valueOf(req.getParameter("id")));
-
         req.setAttribute("user", user);
 
         RequestDispatcher requestDispatcher = req.getRequestDispatcher("/updateuser.jsp");

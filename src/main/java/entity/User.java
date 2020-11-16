@@ -11,12 +11,13 @@ public class User {
     private Role role;
     private UserPhoto image;
 
-    public User(Long id, String login, String password, String firstName, String lastName) {
+    public User(Long id, String login, String password, String firstName, String lastName, Role role) {
         this.id = id;
         this.login = login;
         this.password = password;
         this.firstName = firstName;
         this.lastName = lastName;
+        this.role = role;
     }
 
     public User(String login, String password, String firstName, String lastName, Role role) {
