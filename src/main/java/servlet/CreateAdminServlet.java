@@ -16,7 +16,7 @@ import java.io.IOException;
 
 public class CreateAdminServlet extends HttpServlet {
 
-    private final UserDao userDao = new UserDaoFromDBImpl();
+    private final UserDao userDao = UserDaoFromDBImpl.getInstance();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {

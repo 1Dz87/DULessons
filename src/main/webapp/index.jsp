@@ -24,7 +24,7 @@
         <th bgcolor="#7fffd4">User avatar</th>
     </tr>
     <%
-        UserDao userDao = new UserDaoFromDBImpl();
+        UserDao userDao = UserDaoFromDBImpl.getInstance();
         List<User> users = userDao.findAll();
         for (User user : users) {
     %>

@@ -2,30 +2,52 @@ package dao;
 
 import entity.User;
 import entity.UserPhoto;
+import lib.Logging;
 import lib.Role;
 
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.sql.DataSource;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Level;
 
 public class UserDaoFromDBImpl implements UserDao {
 
-    static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
-    static final String DATABASE_URL = "jdbc:mysql://localhost/webdb?serverTimezone=UTC";
+    private Logging logging = Logging.getInstance();
 
-    static final String USER = "root";
-    static final String PASSWORD = "root";
+    private static UserDaoFromDBImpl instance;
+
+    private static DataSource dataSource;
+
+    private static Connection connection;
+
+    public static synchronized UserDaoFromDBImpl getInstance() {
+        if (instance == null) {
+            try {
+                instance = new UserDaoFromDBImpl();
+                Context ctx = new InitialContext();
+                instance.dataSource = (DataSource) ctx.lookup("java:comp/env/jdbc/webdb");
+                connection = dataSource.getConnection();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            } catch (NamingException e) {
+                e.printStackTrace();
+            }
+        }
+        return instance;
+    }
+
+    private UserDaoFromDBImpl() {
+    }
 
     @Override
     public void create(User user) {
-        try {
-            Class.forName(JDBC_DRIVER);
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-
-        try(Connection connection = DriverManager.getConnection(DATABASE_URL, USER, PASSWORD);
-            PreparedStatement statement = connection.prepareStatement("insert into user (login, password, first_name, last_name, role) values (?,?,?,?,?)", Statement.RETURN_GENERATED_KEYS)) {
+        try(PreparedStatement statement = connection
+                .prepareStatement("insert into user (login, password, first_name, last_name, role) values (?,?,?,?,?)", Statement.RETURN_GENERATED_KEYS)) {
 
             statement.setString(1, user.getLogin());
             statement.setString(2, user.getPassword());
@@ -42,23 +64,15 @@ public class UserDaoFromDBImpl implements UserDao {
                 }
             }
         } catch (SQLException throwables) {
-            throwables.printStackTrace();
+            String str = String.valueOf(Arrays.asList(throwables.getStackTrace()));
+            logging.getLogger().log(Level.SEVERE, str);
         }
     }
 
     @Override
     public void delete(Long id) {
-        try {
-            Class.forName(JDBC_DRIVER);
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-
-        try(Connection connection = DriverManager.getConnection(DATABASE_URL, USER, PASSWORD);
-            Statement statement = connection.createStatement()) {
-
+        try(Statement statement = connection.createStatement()) {
             statement.execute("delete from user where id = " + id);
-
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
@@ -66,14 +80,7 @@ public class UserDaoFromDBImpl implements UserDao {
 
     @Override
     public void update(User user) {
-        try {
-            Class.forName(JDBC_DRIVER);
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-
-        try(Connection connection = DriverManager.getConnection(DATABASE_URL, USER, PASSWORD);
-            Statement statement = connection.createStatement()) {
+        try(Statement statement = connection.createStatement()) {
             Long imageId = user.getImage() == null ? null : user.getImage().getId();
             statement.execute("update user set first_name = '" + user.getFirstName() + "', " +
                     "last_name = '" + user.getLastName() + "', photo = " + imageId + " where id =" + user.getId() + ";");
@@ -85,15 +92,9 @@ public class UserDaoFromDBImpl implements UserDao {
 
     @Override
     public User findById(Long id) {
-        try {
-            Class.forName(JDBC_DRIVER);
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
         User user = null;
 
-        try(Connection connection = DriverManager.getConnection(DATABASE_URL, USER, PASSWORD);
-            Statement statement = connection.createStatement()) {
+        try(Statement statement = connection.createStatement()) {
 
             final ResultSet rs = statement.executeQuery("select * from user where id = '" + id + "'");
             if (rs.next()){
@@ -111,15 +112,9 @@ public class UserDaoFromDBImpl implements UserDao {
 
     @Override
     public User findByLogin(String login) {
-        try {
-            Class.forName(JDBC_DRIVER);
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
         User user = null;
 
-        try(Connection connection = DriverManager.getConnection(DATABASE_URL, USER, PASSWORD);
-            Statement statement = connection.createStatement()) {
+        try(Statement statement = connection.createStatement()) {
 
             final ResultSet rs = statement.executeQuery("select * from user where login = '" + login + "'");
             if (rs.next()){
@@ -137,15 +132,8 @@ public class UserDaoFromDBImpl implements UserDao {
 
     @Override
     public List<User> findByLastName(String lastName) {
-        try {
-            Class.forName(JDBC_DRIVER);
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-
         ArrayList<User> list = new ArrayList<>();
-        try(Connection connection = DriverManager.getConnection(DATABASE_URL, USER, PASSWORD);
-            Statement statement = connection.createStatement()) {
+        try(Statement statement = connection.createStatement()) {
 
             final ResultSet rs = statement.executeQuery("select * from user where last_name = '" + lastName + "'");
 
@@ -164,15 +152,8 @@ public class UserDaoFromDBImpl implements UserDao {
 
     @Override
     public List<User> findAll() {
-        try {
-            Class.forName(JDBC_DRIVER);
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-
         ArrayList<User> list = new ArrayList<>();
-        try(Connection connection = DriverManager.getConnection(DATABASE_URL, USER, PASSWORD);
-            Statement statement = connection.createStatement()) {
+        try(Statement statement = connection.createStatement()) {
 
             final ResultSet rs = statement.executeQuery("select * from user");
 
@@ -194,16 +175,9 @@ public class UserDaoFromDBImpl implements UserDao {
 
     @Override
     public UserPhoto getUserPhoto(Long id) {
-        try {
-            Class.forName(JDBC_DRIVER);
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-
         UserPhoto photo = null;
 
-        try(Connection connection = DriverManager.getConnection(DATABASE_URL, USER, PASSWORD);
-            Statement statement = connection.createStatement()) {
+        try(Statement statement = connection.createStatement()) {
 
             final ResultSet rs = statement.executeQuery("select * from photo where id = '" + id + "'");
             if (rs.next()) {
@@ -218,13 +192,7 @@ public class UserDaoFromDBImpl implements UserDao {
 
     @Override
     public void saveUserPhoto(UserPhoto photo) {
-        try {
-            Class.forName(JDBC_DRIVER);
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-        try(Connection connection = DriverManager.getConnection(DATABASE_URL, USER, PASSWORD);
-            PreparedStatement statement = connection.prepareStatement("insert into photo (file_name, user, photo) values (?, ?, ?)", Statement.RETURN_GENERATED_KEYS)) {
+        try(PreparedStatement statement = connection.prepareStatement("insert into photo (file_name, user, photo) values (?, ?, ?)", Statement.RETURN_GENERATED_KEYS)) {
 
             statement.setString(1, photo.getFileName());
             statement.setLong(2, photo.getUser().getId());
@@ -238,8 +206,8 @@ public class UserDaoFromDBImpl implements UserDao {
                     throw new SQLException("Ошибка получения первичного ключа");
                 }
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            logging.getLogger().warning(e.getMessage());
         }
     }
 }

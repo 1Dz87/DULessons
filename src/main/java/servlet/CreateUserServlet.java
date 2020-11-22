@@ -22,7 +22,7 @@ import java.nio.file.Files;
 @MultipartConfig(maxFileSize = 10000000, maxRequestSize = 11000000)
 public class CreateUserServlet extends HttpServlet {
 
-    private UserDao userDao = new UserDaoFromDBImpl();
+    private UserDao userDao = UserDaoFromDBImpl.getInstance();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {

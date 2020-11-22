@@ -15,7 +15,7 @@ import java.util.List;
 
 @WebServlet("/alluser")
 public class FindAllUserServlet extends HttpServlet {
-    private UserDao userDao = new UserDaoFromDBImpl();
+    private UserDao userDao = UserDaoFromDBImpl.getInstance();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {

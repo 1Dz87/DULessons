@@ -21,7 +21,7 @@ import java.util.List;
 @MultipartConfig(maxFileSize = 10000000, maxRequestSize = 11000000)
 public class UpdateUserServlet extends HttpServlet {
 
-    private UserDao userDao = new UserDaoFromDBImpl();
+    private UserDao userDao = UserDaoFromDBImpl.getInstance();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
