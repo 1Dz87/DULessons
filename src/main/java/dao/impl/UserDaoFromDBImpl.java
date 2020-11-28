@@ -1,5 +1,7 @@
-package dao;
+package dao.impl;
 
+import dao.PhotoDao;
+import dao.UserDao;
 import entity.User;
 import entity.UserPhoto;
 import lib.Logging;
@@ -9,10 +11,10 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.logging.Level;
 
 public class UserDaoFromDBImpl implements UserDao {
@@ -25,17 +27,34 @@ public class UserDaoFromDBImpl implements UserDao {
 
     private static Connection connection;
 
+    private static Properties props = new Properties();
+
+    private static PhotoDao photoDao = PhotoDaoImpl.getInstance();
+
     public static synchronized UserDaoFromDBImpl getInstance() {
         if (instance == null) {
+            InputStream in = null;
             try {
                 instance = new UserDaoFromDBImpl();
                 Context ctx = new InitialContext();
                 instance.dataSource = (DataSource) ctx.lookup("java:comp/env/jdbc/webdb");
                 connection = dataSource.getConnection();
+                in = UserDaoFromDBImpl.class.getClassLoader().getResourceAsStream("user_dao.properties");
+                props.load(in);
             } catch (SQLException e) {
                 e.printStackTrace();
             } catch (NamingException e) {
                 e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                try {
+                    if (in != null) {
+                        in.close();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
         return instance;
@@ -46,8 +65,7 @@ public class UserDaoFromDBImpl implements UserDao {
 
     @Override
     public void create(User user) {
-        try(PreparedStatement statement = connection
-                .prepareStatement("insert into user (login, password, first_name, last_name, role) values (?,?,?,?,?)", Statement.RETURN_GENERATED_KEYS)) {
+        try(PreparedStatement statement = connection.prepareStatement(props.getProperty("create_new"), Statement.RETURN_GENERATED_KEYS)) {
 
             statement.setString(1, user.getLogin());
             statement.setString(2, user.getPassword());
@@ -111,23 +129,21 @@ public class UserDaoFromDBImpl implements UserDao {
     }
 
     @Override
-    public User findByLogin(String login) {
-        User user = null;
-
+    public Optional<User> findByLogin(String login) {
         try(Statement statement = connection.createStatement()) {
 
             final ResultSet rs = statement.executeQuery("select * from user where login = '" + login + "'");
             if (rs.next()){
                 Role role = Role.values()[rs.getInt("role")];
-                user = new User(rs.getLong("id"), rs.getString("login"), rs.getString("password"),
+                User user = new User(rs.getLong("id"), rs.getString("login"), rs.getString("password"),
                         rs.getString("first_name"), rs.getString("last_name"), role);
+                return Optional.of(user);
             }
 
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
-
-        return user;
+        return Optional.empty();
     }
 
     @Override
@@ -162,7 +178,7 @@ public class UserDaoFromDBImpl implements UserDao {
                 User user = new User(rs.getLong("id"), rs.getString("login"), rs.getString("password"),
                         rs.getString("first_name"), rs.getString("last_name"), role);
                 Long photoId = rs.getLong("photo");
-                UserPhoto userPhoto = getUserPhoto(photoId);
+                UserPhoto userPhoto = photoDao.getUserPhoto(photoId);
                 user.setImage(userPhoto);
                 list.add(user);
             }
@@ -171,43 +187,5 @@ public class UserDaoFromDBImpl implements UserDao {
             throwables.printStackTrace();
         }
         return list;
-    }
-
-    @Override
-    public UserPhoto getUserPhoto(Long id) {
-        UserPhoto photo = null;
-
-        try(Statement statement = connection.createStatement()) {
-
-            final ResultSet rs = statement.executeQuery("select * from photo where id = '" + id + "'");
-            if (rs.next()) {
-                byte[] photoBytes = rs.getBytes("photo");
-                photo = new UserPhoto(rs.getLong("id"), rs.getString("file_name"), photoBytes);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return photo;
-    }
-
-    @Override
-    public void saveUserPhoto(UserPhoto photo) {
-        try(PreparedStatement statement = connection.prepareStatement("insert into photo (file_name, user, photo) values (?, ?, ?)", Statement.RETURN_GENERATED_KEYS)) {
-
-            statement.setString(1, photo.getFileName());
-            statement.setLong(2, photo.getUser().getId());
-            statement.setBytes(3, photo.getPhoto());
-            statement.executeUpdate();
-
-            try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
-                if (generatedKeys.next()) {
-                    photo.setId(generatedKeys.getLong(1));
-                } else {
-                    throw new SQLException("Ошибка получения первичного ключа");
-                }
-            }
-        } catch (Exception e) {
-            logging.getLogger().warning(e.getMessage());
-        }
     }
 }

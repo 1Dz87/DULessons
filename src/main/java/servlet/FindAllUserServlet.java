@@ -1,7 +1,7 @@
 package servlet;
 
 import dao.UserDao;
-import dao.UserDaoFromDBImpl;
+import dao.impl.UserDaoFromDBImpl;
 import entity.User;
 
 import javax.servlet.RequestDispatcher;

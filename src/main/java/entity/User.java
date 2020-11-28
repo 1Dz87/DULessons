@@ -11,6 +11,9 @@ public class User {
     private Role role;
     private UserPhoto image;
 
+    public User() {
+    }
+
     public User(Long id, String login, String password, String firstName, String lastName, Role role) {
         this.id = id;
         this.login = login;

@@ -1,10 +1,8 @@
 package servlet;
 
 import dao.UserDao;
-import dao.UserDaoFromDBImpl;
+import dao.impl.UserDaoFromDBImpl;
 import entity.User;
-import entity.UserPhoto;
-import lib.Utils;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;

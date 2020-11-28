@@ -1,11 +1,10 @@
 package servlet;
 
-import at.favre.lib.crypto.bcrypt.BCrypt;
 import dao.UserDao;
-import dao.UserDaoFromDBImpl;
-import entity.User;
-import lib.Role;
-import lib.Utils;
+import dao.impl.UserDaoFromDBImpl;
+import lib.exception.BadCredentialsException;
+import service.IUserService;
+import service.impl.UserService;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -18,6 +17,8 @@ public class CreateAdminServlet extends HttpServlet {
 
     private final UserDao userDao = UserDaoFromDBImpl.getInstance();
 
+    private final IUserService userService = new UserService();
+
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         RequestDispatcher dispatcher = req.getRequestDispatcher("createadmin.jsp");
@@ -26,15 +27,11 @@ public class CreateAdminServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        final String password = req.getParameter("password");
-        final String login = req.getParameter("login");
-        if (!Utils.stringIsEmpty(password) && !Utils.stringIsEmpty(login)) {
-            final String hash = new String(BCrypt.with(BCrypt.Version.VERSION_2B).hash(13, password.toCharArray()));
-            User user = new User(login, hash, req.getParameter("first_name"), req.getParameter("last_name"), Role.ADMIN);
-            userDao.create(user);
-            resp.sendRedirect(req.getContextPath() + "/");
-        } else {
-            req.setAttribute("error", "Логин и пароль обязательны для заполнения");
+        try {
+            userService.create(req);
+            resp.sendRedirect(req.getContextPath() + "/alluser");
+        } catch (BadCredentialsException e) {
+            req.setAttribute("error", e.getMessage());
             RequestDispatcher dispatcher = req.getRequestDispatcher("createadmin.jsp");
             dispatcher.forward(req, resp);
         }

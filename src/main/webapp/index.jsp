@@ -1,7 +1,7 @@
 <%@ page import="entity.User" %>
 <%@ page import="java.util.List" %>
 <%@ page import="dao.UserDao" %>
-<%@ page import="dao.UserDaoFromDBImpl" %>
+<%@ page import="dao.impl.UserDaoFromDBImpl" %>
 <%@ page import="java.util.Base64" %>
 
 <%--
