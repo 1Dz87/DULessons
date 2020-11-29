@@ -38,7 +38,6 @@ public class LoginServlet extends HttpServlet {
         Optional<User> opt = userDao.findByLogin(login);
         try {
             User user = userService.login(req, resp, opt);
-            req.setAttribute("user", user);
             resp.sendRedirect(req.getContextPath() + user.getRole().getRedirectUrl());
         } catch (BadCredentialsException e) {
             logging.getLogger().log(Level.SEVERE, e.getMessage());

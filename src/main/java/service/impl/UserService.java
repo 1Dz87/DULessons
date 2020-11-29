@@ -4,7 +4,6 @@ import at.favre.lib.crypto.bcrypt.BCrypt;
 import dao.UserDao;
 import dao.impl.UserDaoFromDBImpl;
 import entity.User;
-import entity.UserPhoto;
 import lib.Logging;
 import lib.Role;
 import lib.Utils;
@@ -16,9 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
 
@@ -54,6 +51,7 @@ public class UserService implements IUserService {
                 HttpSession session = req.getSession();
                 session.setAttribute("UID", hash);
                 session.setMaxInactiveInterval(30 * 60);
+                session.setAttribute("user", user);
 
                 Cookie cookie = new Cookie("UID", hash);
                 cookie.setMaxAge(30 * 60);

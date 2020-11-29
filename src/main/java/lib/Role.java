@@ -2,8 +2,8 @@ package lib;
 
 public enum Role {
 
-    ADMIN("/alluser"),
-    CLIENT("/client");
+    ADMIN("/admin_room"),
+    CLIENT("/private_room");
 
     private String redirectUrl;
 
