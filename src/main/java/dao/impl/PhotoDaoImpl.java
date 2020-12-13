@@ -33,7 +33,7 @@ public class PhotoDaoImpl implements PhotoDao {
                 Context ctx = new InitialContext();
                 ((PhotoDaoImpl)instance).dataSource = (DataSource) ctx.lookup("java:comp/env/jdbc/webdb");
                 connection = dataSource.getConnection();
-                in = UserDaoFromDBImpl.class.getClassLoader().getResourceAsStream("user_photo.properties");
+                in = PhotoDaoImpl.class.getClassLoader().getResourceAsStream("user_photo.properties");
                 props.load(in);
             } catch (SQLException e) {
                 e.printStackTrace();

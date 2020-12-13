@@ -26,13 +26,23 @@ public class UserService implements IUserService {
     private Logging logging = Logging.getInstance();
 
     @Override
-    public void create(HttpServletRequest req) throws BadCredentialsException {
+    public void create(HttpServletRequest req, HttpServletResponse resp) throws BadCredentialsException {
         final String password = req.getParameter("password");
         final String login = req.getParameter("login");
         if (!Utils.stringIsEmpty(password) && !Utils.stringIsEmpty(login)) {
             final String hash = new String(BCrypt.with(BCrypt.Version.VERSION_2B).hash(13, password.toCharArray()));
             User user = new User(login, hash, req.getParameter("first_name"), req.getParameter("last_name"), Role.ADMIN);
             userDao.create(user);
+            String uidHash = hash + new Date().getTime();
+            HttpSession session = req.getSession();
+            session.setAttribute("UID", uidHash);
+            session.setMaxInactiveInterval(30 * 60);
+            session.setAttribute("user", user);
+
+            Cookie cookie = new Cookie("UID", uidHash);
+            cookie.setMaxAge(30 * 60);
+            resp.addCookie(cookie);
+            logging.getLogger().log(Level.INFO, "Вход в приложение пользователем: " + user.getLogin());
         } else throw new BadCredentialsException("Логин и пароль обязательны для заполнения");
     }
 

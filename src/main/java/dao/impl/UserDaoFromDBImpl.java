@@ -90,7 +90,7 @@ public class UserDaoFromDBImpl implements UserDao {
     @Override
     public void delete(Long id) {
         try(Statement statement = connection.createStatement()) {
-            statement.execute("delete from user where id = " + id);
+            statement.execute("delete from public.user where id = " + id);
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
@@ -100,7 +100,7 @@ public class UserDaoFromDBImpl implements UserDao {
     public void update(User user) {
         try(Statement statement = connection.createStatement()) {
             Long imageId = user.getImage() == null ? null : user.getImage().getId();
-            statement.execute("update user set first_name = '" + user.getFirstName() + "', " +
+            statement.execute("update public.user set first_name = '" + user.getFirstName() + "', " +
                     "last_name = '" + user.getLastName() + "', photo = " + imageId + " where id =" + user.getId() + ";");
 
         } catch (SQLException throwables) {
@@ -114,7 +114,7 @@ public class UserDaoFromDBImpl implements UserDao {
 
         try(Statement statement = connection.createStatement()) {
 
-            final ResultSet rs = statement.executeQuery("select * from user where id = '" + id + "'");
+            final ResultSet rs = statement.executeQuery("select * from public.user where id = '" + id + "'");
             if (rs.next()){
                 Role role = Role.values()[rs.getInt("role")];
                 user = new User(rs.getLong("id"), rs.getString("login"), rs.getString("password"),
@@ -132,7 +132,7 @@ public class UserDaoFromDBImpl implements UserDao {
     public Optional<User> findByLogin(String login) {
         try(Statement statement = connection.createStatement()) {
 
-            final ResultSet rs = statement.executeQuery("select * from user where login = '" + login + "'");
+            final ResultSet rs = statement.executeQuery("select * from public.user where login = '" + login + "'");
             if (rs.next()){
                 Role role = Role.values()[rs.getInt("role")];
                 User user = new User(rs.getLong("id"), rs.getString("login"), rs.getString("password"),
@@ -151,7 +151,7 @@ public class UserDaoFromDBImpl implements UserDao {
         ArrayList<User> list = new ArrayList<>();
         try(Statement statement = connection.createStatement()) {
 
-            final ResultSet rs = statement.executeQuery("select * from user where last_name = '" + lastName + "'");
+            final ResultSet rs = statement.executeQuery("select * from public.user where last_name = '" + lastName + "'");
 
             while (rs.next()){
                 Role role = Role.values()[rs.getInt("role")];
@@ -171,7 +171,7 @@ public class UserDaoFromDBImpl implements UserDao {
         ArrayList<User> list = new ArrayList<>();
         try(Statement statement = connection.createStatement()) {
 
-            final ResultSet rs = statement.executeQuery("select * from user");
+            final ResultSet rs = statement.executeQuery("select * from public.user");
 
             while (rs.next()){
                 Role role = Role.values()[rs.getInt("role")];

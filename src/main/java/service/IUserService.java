@@ -10,7 +10,7 @@ import java.util.Optional;
 
 public interface IUserService {
 
-    void create(HttpServletRequest req) throws BadCredentialsException;
+    void create(HttpServletRequest req, HttpServletResponse resp) throws BadCredentialsException;
 
     User login(HttpServletRequest req, HttpServletResponse resp, Optional<User> opt) throws BadCredentialsException, IOException;
 }

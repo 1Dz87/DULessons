@@ -1,5 +1,7 @@
 package servlet;
 
+import dao.ParkingDao;
+import dao.impl.ParkingDaoImpl;
 import entity.Parking;
 import entity.ParkingArea;
 import entity.ParkingPlace;
@@ -17,6 +19,8 @@ import java.util.*;
 
 @WebServlet("/createParking")
 public class CreateParkingServlet extends HttpServlet {
+
+    private ParkingDao parkingDao = ParkingDaoImpl.getInstance();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -40,7 +44,7 @@ public class CreateParkingServlet extends HttpServlet {
                     error = "Не заполнено количество парковочных мест для зоны парковки: " + side.getDisplayField();
                     break;
                 }
-                for (int i = 0; i < placesQuantity; i++) {
+                for (int i = 1; i <= placesQuantity; i++) {
                     ParkingPlace place = new ParkingPlace();
                     place.setNumber(i);
                     place.setOccupied(false);
@@ -54,7 +58,9 @@ public class CreateParkingServlet extends HttpServlet {
             Parking parking = new Parking();
             parking.setName(parkingName);
             parking.setParkingAreas(areas);
-            //TODO: redorect user to somewhere
+            parking = parkingDao.saveParking(parking);
+            req.getSession().setAttribute("parking_" + parking.getId(), parking);
+            //TODO: Redirect to view parking jsp
         }
         req.setAttribute("error", error);
         RequestDispatcher dispatcher = req.getRequestDispatcher("create_parking.jsp");

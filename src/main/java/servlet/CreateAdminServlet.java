@@ -28,7 +28,7 @@ public class CreateAdminServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
-            userService.create(req);
+            userService.create(req, resp);
             resp.sendRedirect(req.getContextPath() + "/alluser");
         } catch (BadCredentialsException e) {
             req.setAttribute("error", e.getMessage());
